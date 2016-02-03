@@ -6,7 +6,7 @@ import logging
 from threading import Thread
 from tcpServer import TcpServer
 
-from volttron.platform.vip.agent import Agent, PubSub, Core
+from volttron.platform.vip.agent import Agent, PubSub
 from volttron.platform.agent import utils
 from zmq.utils import jsonapi
 from volttron.platform.messaging import headers as headers_mod
