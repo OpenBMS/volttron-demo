@@ -1,5 +1,11 @@
 FROM openbms/volttron:latest
 
+# Install selenium and dependencies
+RUN apt-get update
+RUN apt-get install wget openjdk-7-jre-headless firefox xvfb -y --force-yes
+RUN mkdir ~/.selenium
+RUN wget http://selenium-release.storage.googleapis.com/2.50/selenium-server-standalone-2.50.0.jar -P ~/.selenium
+
 ADD . /home/volttron/demo
 RUN chown -R volttron:volttron /home/volttron/demo
 
@@ -8,11 +14,5 @@ RUN chown -R volttron:volttron /home/volttron/launch.sh
 RUN chmod +x /home/volttron/launch.sh
 
 USER volttron
-
-# Packages and installs dummy package
-# Uses bash because non-interactive sh does not load startup files
-RUN bash -c "volttron-pkg package ~/demo/entities/Test"
-RUN bash -c "volttron-pkg configure ~/.volttron/packaged/testagent-0.1-py2-none-any.whl ~/demo/entities/Test/testagent.config"
-RUN bash -c "volttron-ctl install ~/.volttron/packaged/testagent-0.1-py2-none-any.whl"
 
 CMD ["bash"]
