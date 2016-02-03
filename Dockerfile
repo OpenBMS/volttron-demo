@@ -15,4 +15,18 @@ RUN chmod +x /home/volttron/launch.sh
 
 USER volttron
 
+RUN . /home/volttron/volttron-source/env/bin/activate && \
+  pip install /home/volttron/demo/entities/Plug
+
+WORKDIR /home/volttron/volttron-source
+
+RUN . /home/volttron/volttron-source/env/bin/activate && \
+  SOURCE=services/core/Platform CONFIG=services/core/Platform/config TAG=platform ./scripts/core/make-agent.sh enable
+RUN . /home/volttron/volttron-source/env/bin/activate && \
+  SOURCE=~/demo/entities/Test CONFIG=~/demo/entities/Test/testagent.config TAG=testagent ./scripts/core/make-agent.sh enable
+RUN . /home/volttron/volttron-source/env/bin/activate && \
+  SOURCE=~/demo/entities/Plug CONFIG=~/demo/entities/Plug/plug-test.config TAG=plug ./scripts/core/make-agent.sh enable
+
+WORKDIR /home/volttron
+
 CMD ["bash"]
