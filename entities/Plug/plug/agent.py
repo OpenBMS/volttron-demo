@@ -4,7 +4,7 @@ import logging
 import os
 
 from volttron.platform.vip.agent import Agent, PubSub, Core
-from volttron.platform.agent import utils, matching
+from volttron.platform.agent import utils
 from volttron.platform.messaging import headers as headers_mod
 from zmq.utils import jsonapi
 
