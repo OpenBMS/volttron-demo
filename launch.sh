@@ -2,9 +2,16 @@
 
 source /home/volttron/volttron-source/env/bin/activate
 DISPLAY=:1 xvfb-run java -jar ~/.selenium/selenium-server-standalone-2.50.0.jar > selenium.log &
-volttron -l volttron.log -vv&
 
 pip install demo/entities/Plug
 
-volttron-ctl start --name testagent-0.1
-volttron-ctl start --name plug_openbms_entity-0.1
+cd volttron-source
+
+SOURCE=services/core/Platform CONFIG=services/core/Platform/config TAG=platform ./scripts/core/make-agent.sh enable
+SOURCE=~/demo/entities/Test CONFIG=~/demo/entities/Test/testagent.config TAG=testagent ./scripts/core/make-agent.sh enable
+SOURCE=~/demo/entities/Plug CONFIG=~/demo/entities/Plug/plug-test.config TAG=plug ./scripts/core/make-agent.sh enable
+
+cd ~
+
+volttron -l volttron.log -vv&
+
