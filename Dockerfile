@@ -29,6 +29,9 @@ RUN . /home/volttron/volttron-source/env/bin/activate && \
 RUN . /home/volttron/volttron-source/env/bin/activate && \
   SOURCE=~/demo/entities/Plug CONFIG=~/demo/entities/Plug/plug-test.config TAG=plug ./scripts/core/make-agent.sh enable
 RUN . /home/volttron/volttron-source/env/bin/activate && \
+  SOURCE=~/demo/agents/HouseCoordinator CONFIG=~/demo/agents/HouseCoordinator/housecoordinator.config TAG=hc ./scripts/core/make-agent.sh enable
+EXPOSE 5050
+RUN . /home/volttron/volttron-source/env/bin/activate && \
   SOURCE=~/demo/entities/Battery CONFIG=~/demo/entities/Battery/battery-entity-1.config TAG=battery ./scripts/core/make-agent.sh enable
 EXPOSE 6000
 RUN . /home/volttron/volttron-source/env/bin/activate && \
