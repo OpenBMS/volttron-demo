@@ -40,8 +40,8 @@ def plug_entity(config_path, **kwargs):
               headers_mod.DATE: datetime.datetime.today().isoformat(),
               "Location": config.get("location")
             }
-            _log.debug("publishing heartbeat")
             self.publish_all(data, prefix, headers)
+            _log.debug("publishing heartbeat: %s", str(data))
 
         def publish_all(self, data, prefix, headers):
             for item in data.keys():
