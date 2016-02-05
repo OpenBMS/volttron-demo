@@ -218,7 +218,7 @@ class HouseCoordinator(Agent):
 
     @PubSub.subscribe('pubsub', '')
     def on_match_all(self, peer, sender, bus, topic, headers, message):
-        agent_id = headers.get('FROM')
+        agent_id = headers.get(headers_mod.FROM)
         if agent_id is None or agent_id == AGENT_ID:
             return
 
@@ -233,7 +233,7 @@ class HouseCoordinator(Agent):
         cur_agent_context['device_type'] = device_type
         cur_agent_context.update({'location':headers.get('Location')})
         # extract specific property (such as voltage, power etc.) from the topic 
-        cur_agent_context.update({topic.split("/")[-1]:  jsonapi.loads(message[0])})
+        cur_agent_context.update({topic.split("/")[-1]:  jsonapi.loads(message)})
         self.agents_context_map[agent_id].update(cur_agent_context)
         HouseHTTPServer.set_buffer(self.agents_context_map)
 
