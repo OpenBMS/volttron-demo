@@ -6,7 +6,7 @@ import logging
 from threading import Thread
 from tcpServer import TcpServer
 
-from volttron.platform.vip.agent import Agent, PubSub
+from volttron.platform.vip.agent import Agent, PubSub, Core
 from volttron.platform.agent import utils
 from volttron.platform.messaging import headers as headers_mod
 from zmq.utils import jsonapi
@@ -20,7 +20,7 @@ def fan_entity(config_path, **kwargs):
     config = utils.load_config(config_path)
     AGENT_ID = config.get("agent_id")
 
-    SPEED_MAPINGS = {
+    SPEED_MAPPINGS = {
         'slow': 175,
         'medium': 90,
         'fast': 7
@@ -30,6 +30,7 @@ def fan_entity(config_path, **kwargs):
         def __init__(self, **kwargs):
             super(FanEntity, self).__init__(**kwargs)
 
+            self.speed = 'slow'
             self.tcpServer = TcpServer(config.get('port'), self)
             Thread(target=self.tcpServer.startServer).start()
 
@@ -42,6 +43,10 @@ def fan_entity(config_path, **kwargs):
                     (key, value) = component.split('=')
                     data.update({key: value})
             self.status_push(data)
+
+        @Core.periodic(settings.HEARTBEAT_PERIOD)
+        def publish_speed(self):
+          self.status_push({'speed': SPEED_MAPPINGS[self.speed]})
 
         def status_push(self, data):
             prefix = settings.TYPE_PREFIX + '/' + AGENT_ID + '/data'
