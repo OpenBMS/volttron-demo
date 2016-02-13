@@ -30,8 +30,12 @@ RUN . /home/volttron/volttron-source/env/bin/activate && \
   SOURCE=services/core/SQLHistorian CONFIG=services/core/SQLHistorian/config.sqlite.platform.historian TAG=historian COMMAND_ARGS="-t 0" ./scripts/core/make-agent-with-args.sh enable
 RUN . /home/volttron/volttron-source/env/bin/activate && \
   SOURCE=~/demo/entities/Test CONFIG=~/demo/entities/Test/testagent.config TAG=testagent COMMAND_ARGS="-t 0" ./scripts/core/make-agent-with-args.sh enable
+
 RUN . /home/volttron/volttron-source/env/bin/activate && \
-  SOURCE=~/demo/entities/Plug CONFIG=~/demo/entities/Plug/plug-test.config TAG=plug COMMAND_ARGS="-t 0" ./scripts/core/make-agent-with-args.sh enable
+  SOURCE=~/demo/entities/Plug CONFIG=~/demo/entities/Plug/fan-plug.config TAG=fan-plug COMMAND_ARGS="-t 0" ./scripts/core/make-agent-with-args.sh enable
+RUN . /home/volttron/volttron-source/env/bin/activate && \
+  SOURCE=~/demo/entities/Plug CONFIG=~/demo/entities/Plug/lamp-plug.config TAG=lamp-plug COMMAND_ARGS="-t 0" ./scripts/core/make-agent-with-args.sh enable
+
 RUN . /home/volttron/volttron-source/env/bin/activate && \
   SOURCE=~/demo/agents/HouseCoordinator CONFIG=~/demo/agents/HouseCoordinator/housecoordinator.config TAG=hc COMMAND_ARGS="-t 0" ./scripts/core/make-agent-with-args.sh enable
 EXPOSE 5050
