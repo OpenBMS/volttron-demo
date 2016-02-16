@@ -74,7 +74,9 @@ class BossClient(object):
             self.toggle()
 
     def power(self):
-        return self.driver.find_element_by_xpath(self.container_path() + "/div[@class='left']/div[@class='bottom']/h2").text
+        raw_power = self.driver.find_element_by_xpath(self.container_path() + "/div[@class='left']/div[@class='bottom']/h2").text
+        magnitude, unit = raw_power.split(' ') if raw_power != '' else [0, 'W']
+        return {'unit': unit, 'magnitude': float(magnitude)}
 
     def pending(self):
         return len(self.driver.find_elements_by_xpath(self.container_path() + "//div[@class='bottom pending']")) > 0
