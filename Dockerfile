@@ -20,7 +20,8 @@ RUN chmod +x /home/volttron/volttron-source/scripts/core/make-agent-with-args.sh
 USER volttron
 
 RUN . /home/volttron/volttron-source/env/bin/activate && \
-  pip install /home/volttron/demo/entities/Plug
+  pip install /home/volttron/demo/entities/Plug && \
+  pip install /home/volttron/demo/agents/HouseCoordinator
 
 WORKDIR /home/volttron/volttron-source
 

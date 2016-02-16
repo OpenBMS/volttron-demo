@@ -6,7 +6,7 @@ package = packages[0]
 setup(
     name = package + '-openbms-agent',
     version = "0.1",
-    install_requires = ['volttron'],
+    install_requires = ['volttron', 'requests', 'pint'],
     packages = packages,
     entry_points = {
         'setuptools.installation': [

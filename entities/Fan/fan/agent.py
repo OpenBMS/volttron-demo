@@ -65,6 +65,7 @@ def fan_entity(config_path, **kwargs):
                 self.vip.pubsub.publish('pubsub', topic, headers, jsonapi.dumps(data[item]))
 
         def set_speed(self, speed):
+            self.speed = speed
             if self.tcpServer.isClientConnected():
                 self.tcpServer.sendData("speed={value}".format(value=SPEED_MAPINGS[speed]))
 

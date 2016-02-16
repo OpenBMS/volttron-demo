@@ -3,6 +3,7 @@ import random
 import datetime
 import os
 import logging
+import requests
 
 from volttron.platform.vip.agent import Agent, PubSub
 from volttron.platform.agent import utils
@@ -10,14 +11,15 @@ from volttron.platform.messaging import headers as headers_mod
 from zmq.utils import jsonapi
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 from ServerHTTP import HouseHTTPServer;
-import SocketServer
+from pint import UnitRegistry
 import threading
-import pprint
 
 utils.setup_logging() 
 _log = logging.getLogger(__name__)
+_units = UnitRegistry()
 
 AGENT_ID = os.environ.get("AGENT_UUID")
+CLOUD_ENDPOINT = os.environ.get("CLOUD_ENDPOINT")
 PORT = 5050
 
 def start_server():
@@ -40,6 +42,7 @@ class HouseCoordinator(Agent):
         self.mode = "comfort"
         # current power price (low, medium or high)
         self.power_price = "high"
+        self.previous_power = 0
         # Initialize Energy profile map, which indicates highest allowed operating 
         # states for each of the device, given a mode and price level
         self.init_energy_profile_map()
@@ -237,6 +240,11 @@ class HouseCoordinator(Agent):
         self.agents_context_map[agent_id].update(cur_agent_context)
         HouseHTTPServer.set_buffer(self.agents_context_map)
 
+        if self.total_power() != self.previous_power:
+          self.previous_power = self.total_power()
+          self.publish_total_power_to_cloud()
+        
+
     def create_message_and_publish(self, topic, message):
         headers = {
             headers_mod.FROM: AGENT_ID,
@@ -279,6 +287,15 @@ class HouseCoordinator(Agent):
         topic = storage_prefix + "/operations/changeBatteryState"
         self.create_message_and_publish(topic, target_status)
 
+    def total_power(self):
+        return sum([self.power_quantity(agent) for agent in self.agents_context_map])
+    
+    def power_quantity(self, agent):
+        return self.agents_context_map[agent].get('power', {}).get('magnitude', 0) * _units(self.agents_context_map[agent].get('power', {}).get('unit', 'W'))
+
+    def publish_total_power_to_cloud(self):
+        _log.debug("current power: {p}".format(p=self.total_power()))
+        requests.patch(CLOUD_ENDPOINT, json={"total_power": self.total_power().to(_units('kW')).magnitude})
 
 def getCurrentState():
     return currentState
