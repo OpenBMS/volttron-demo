@@ -120,13 +120,13 @@ class HouseCoordinator(Agent):
              }
         }
 
-    def get_allowed_operating_states(self):
-        mode_map = self.energy_profile_map.get(self.mode)
+    def get_allowed_operating_states(self, mode, power_price_level):
+        mode_map = self.energy_profile_map.get(mode)
         if mode_map is None:
-            raise ValueError("Invalid mode %s" %(self.mode))
-        oper_states = mode_map.get(self.power_price_level())
+            raise ValueError("Invalid mode %s" %(mode))
+        oper_states = mode_map.get(power_price_level)
         if oper_states is None:
-            raise ValueError("Invalid power price %s"%(self.power_price))
+            raise ValueError("Invalid power price %s"%(power_price_level))
         return oper_states
     
     def power_price_level(self):
@@ -175,7 +175,7 @@ class HouseCoordinator(Agent):
             else:
                 return False
 
-        elif (location == 'lamp'):
+        elif (location == 'lamp-plug'):
             if (highest_allowed_device_state == 'off'):
                 if (current_device_state != 'off'):
                     return True
@@ -195,8 +195,8 @@ class HouseCoordinator(Agent):
     # compares operating states of devices against highest allowed operating
     # state for current energy profile. If needed triggers transitions to
     # ensure devices are within the operating limits
-    def trigger_transitions(self):
-        oper_states = self.get_allowed_operating_states()
+    def trigger_transitions(self, mode, power_price_level):
+        oper_states = self.get_allowed_operating_states(mode, power_price_level)
         for agent in self.agents_context_map.keys():
             agent_state = self.agents_context_map[agent]
             # get the type of device associated with the agent
@@ -222,11 +222,15 @@ class HouseCoordinator(Agent):
 
     def set_mode(self,mode):
         self.mode = mode
-        self.trigger_transitions()
+        self.trigger_transitions(self.mode, self.power_price_level())
 
     def set_price(self,power_price):
         self.power_price = power_price
-        self.trigger_transitions()
+        self.trigger_transitions(self.mode, self.power_price_level())
+
+    def handle_disruption(self):
+        # during power disruption, reduce load as much as possible
+        self.trigger_transitions("economy", "high")
 
     @PubSub.subscribe('pubsub', '')
     def on_match_all(self, peer, sender, bus, topic, headers, message):
@@ -234,9 +238,7 @@ class HouseCoordinator(Agent):
         if agent_id is None or agent_id == AGENT_ID:
             return
 
-        _log.debug("topic: {s}".format(s=topic))
         device_type = "/".join(topic.split("/")[0:2])
-        _log.debug("device_type: {s}".format(s=device_type))
         if (not self.agents_context_map.has_key(agent_id)):
             self.agents_context_map[agent_id] = {}
 
@@ -249,10 +251,9 @@ class HouseCoordinator(Agent):
         self.agents_context_map[agent_id].update(cur_agent_context)
         HouseHTTPServer.set_buffer(self.agents_context_map)
 
-        if self.total_power() != self.previous_power:
+        if(self.total_power() != self.previous_power):
           self.previous_power = self.total_power()
           self.publish_total_power_to_cloud()
-        
 
     def create_message_and_publish(self, topic, message):
         headers = {
