@@ -57,6 +57,11 @@ class HouseHTTPServer(BaseHTTPRequestHandler):
     elif fields['type'] == "price":
       print "Control Msg : Price"
       instance.set_price(float(fields['value']))
+    elif fields['type'] == "price_threshold":
+      instance.set_price_threshold(fields['threshold'], float(fields['value']))
+    elif fields['type'] == "price":
+      print "Control Msg : Price"
+      instance.set_price(float(fields['value']))
     elif fields['type'] == 'disruption':
       instance.handle_disruption()
 

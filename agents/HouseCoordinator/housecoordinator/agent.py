@@ -38,8 +38,7 @@ class HouseCoordinator(Agent):
         super(HouseCoordinator, self).__init__(**kwargs)
 
         config = utils.load_config(config_path)
-        self.LOW_PRICE_THRESHOLD = float(config.get("low_price_threshold"))
-        self.HIGH_PRICE_THRESHOLD = float(config.get("high_price_threshold"))
+        self.power_price_thresholds = {"low": float(config.get("low_price_threshold")), "high": float(config.get("high_price_threshold"))}
 
         # dict which maintains state of agents connected to Home coordinator
         self.agents_context_map = {}
@@ -130,9 +129,9 @@ class HouseCoordinator(Agent):
         return oper_states
     
     def power_price_level(self):
-        if self.power_price <= self.LOW_PRICE_THRESHOLD:
+        if self.power_price <= self.power_price_thresholds["low"]:
           return "low"
-        elif self.power_price < self.HIGH_PRICE_THRESHOLD:
+        elif self.power_price < self.power_price_thresholds["high"]:
           return "medium"
         else:
           return "high"
@@ -226,6 +225,10 @@ class HouseCoordinator(Agent):
 
     def set_price(self,power_price):
         self.power_price = power_price
+        self.trigger_transitions(self.mode, self.power_price_level())
+
+    def set_price_threshold(self, threshold, value):
+        self.power_price_thresholds[threshold] = value
         self.trigger_transitions(self.mode, self.power_price_level())
 
     def handle_disruption(self):
