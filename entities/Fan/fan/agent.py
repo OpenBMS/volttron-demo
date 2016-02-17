@@ -45,8 +45,8 @@ def fan_entity(config_path, **kwargs):
             self.status_push(data)
 
         @Core.periodic(settings.HEARTBEAT_PERIOD)
-        def publish_speed(self):
-          self.status_push({'speed': SPEED_MAPPINGS[self.speed]})
+        def publish_status(self):
+          self.status_push({'speed': self.speed})
 
         def status_push(self, data):
             prefix = settings.TYPE_PREFIX + '/' + AGENT_ID + '/data'
@@ -70,9 +70,9 @@ def fan_entity(config_path, **kwargs):
                 self.tcpServer.sendData("speed={value}".format(value=SPEED_MAPINGS[speed]))
 
         @PubSub.subscribe('pubsub', settings.TYPE_PREFIX + '/' + AGENT_ID + '/operations/speed')
-        def on_set_speed(self, topic, headers, message, _):
+        def on_set_speed(self, peer, sender, bus, topic, headers, message):
             print 'Fan Entity got\nTopic: {topic}, {headers}, Message: {message}'.format(topic=topic, headers=headers, message=message)
-            self.set_speed(jsonapi.loads(message[0]))
+            self.set_speed(jsonapi.loads(message))
   
     return FanEntity(**kwargs)
 

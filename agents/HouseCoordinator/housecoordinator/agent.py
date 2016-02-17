@@ -18,10 +18,6 @@ utils.setup_logging()
 _log = logging.getLogger(__name__)
 _units = UnitRegistry()
 
-AGENT_ID = os.environ.get("AGENT_UUID")
-CLOUD_ENDPOINT = os.environ.get("CLOUD_ENDPOINT")
-PORT = 5050
-
 def start_server():
     print 'http server is starting...'
     #ip and port of server
@@ -31,17 +27,26 @@ def start_server():
     httpd.serve_forever()
     return
 
+AGENT_ID = os.environ.get("AGENT_UUID")
+CLOUD_ENDPOINT = os.environ.get("CLOUD_ENDPOINT")
+PORT = 5050
+DEFAULT_POWER_PRICE = 3.4 # placeholder, average for March from ComEd
 
 class HouseCoordinator(Agent):
 
     def __init__(self, config_path, **kwargs):
         super(HouseCoordinator, self).__init__(**kwargs)
+
+        config = utils.load_config(config_path)
+        self.LOW_PRICE_THRESHOLD = float(config.get("low_price_threshold"))
+        self.HIGH_PRICE_THRESHOLD = float(config.get("high_price_threshold"))
+
         # dict which maintains state of agents connected to Home coordinator
         self.agents_context_map = {}
         # current mode (economy or comfort)
         self.mode = "comfort"
-        # current power price (low, medium or high)
-        self.power_price = "high"
+        # current power price (in cents per kWh)
+        self.power_price = DEFAULT_POWER_PRICE
         self.previous_power = 0
         # Initialize Energy profile map, which indicates highest allowed operating 
         # states for each of the device, given a mode and price level
@@ -119,21 +124,25 @@ class HouseCoordinator(Agent):
         mode_map = self.energy_profile_map.get(self.mode)
         if mode_map is None:
             raise ValueError("Invalid mode %s" %(self.mode))
-        oper_states = mode_map.get(self.power_price)
+        oper_states = mode_map.get(self.power_price_level())
         if oper_states is None:
             raise ValueError("Invalid power price %s"%(self.power_price))
         return oper_states
     
-    def get_agents_context_map():
-        return self.agents_context_map
+    def power_price_level(self):
+        if self.power_price <= self.LOW_PRICE_THRESHOLD:
+          return "low"
+        elif self.power_price < self.HIGH_PRICE_THRESHOLD:
+          return "medium"
+        else:
+          return "high"
 
     def is_transition_needed(self,location,highest_allowed_device_state,status,speed):
-        # print "current_device_state %s , highest_allowed_device_state %s" %(current_device_state,highest_allowed_device_state) 
         # current device state is same as highest allowed device state. No action needed
 
         # TODO explore the possibility of merging status and speed into single state which 
         # HC can communicate to agent
-        
+
         # capture current device state based on status and speed
         if status == 'off':
             current_device_state = status
@@ -153,7 +162,7 @@ class HouseCoordinator(Agent):
             return False
 
         # Take specific actions based on the device type and current state
-        if ((location == 'pump') or (location == 'fan')):
+        if ((location == 'pump-arduino') or (location == 'fan-arduino')):
             if (highest_allowed_device_state == 'off'):
                 if (current_device_state != 'off'):
                     return True
@@ -198,7 +207,7 @@ class HouseCoordinator(Agent):
             if highest_allowed_device_state is None:
                 raise ValueError("invalid agent location %s"%(location))
             # based on highest allowed state and current device status evaluate if a transition is needed
-            if (self.is_transition_needed(location,highest_allowed_device_state,agent_state['status'],agent_state['speed'])):
+            if (self.is_transition_needed(location,highest_allowed_device_state,agent_state.get('status'),agent_state.get('speed'))):
                 # TODO trigger tranistion to move to appropriate state
                 print "Transition triggered for agent %s on location %s to move to %s"%(agent,location,highest_allowed_device_state)
                 params =  {
@@ -206,7 +215,7 @@ class HouseCoordinator(Agent):
                     'property': self.get_property_from_value(highest_allowed_device_state),
                     'value'   : highest_allowed_device_state
                 }
-                create_and_publish_topic(params)
+                self.create_and_publish_topic(params)
                 # agent_state['status'] = highest_allowed_device_state
             else:
                 print "No transition needed"
@@ -297,9 +306,6 @@ class HouseCoordinator(Agent):
         _log.debug("current power: {p}".format(p=self.total_power()))
         requests.patch(CLOUD_ENDPOINT, json={"total_power": self.total_power().to(_units('kW')).magnitude})
 
-def getCurrentState():
-    return currentState
-  
 def main(argv=sys.argv):
     """Main method called by the platform"""
     utils.vip_main(HouseCoordinator)

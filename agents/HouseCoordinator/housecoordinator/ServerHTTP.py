@@ -56,7 +56,7 @@ class HouseHTTPServer(BaseHTTPRequestHandler):
       instance.set_mode(fields['value'])
     elif fields['type'] == "price":
       print "Control Msg : Price"
-      instance.set_price(fields['value'])
+      instance.set_price(float(fields['value']))
     
     self.send_response(200) 
 
