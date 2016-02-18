@@ -80,7 +80,7 @@ class HouseCoordinator(Agent):
                 "high":
                 {
                     "battery-lamp-plug": "on",
-                    "lamp-plug"        : "on",
+                    "lamp-plug"        : "off",
                     "fan-arduino"      : "slow",
                     "fan-plug"         : "off",
                     "pump-arduino"     : "off",
