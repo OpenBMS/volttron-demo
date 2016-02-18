@@ -43,7 +43,7 @@ class HouseCoordinator(Agent):
         # dict which maintains state of agents connected to Home coordinator
         self.agents_context_map = {}
         # current mode (economy or comfort)
-        self.mode = "comfort"
+        self.mode = config.get("default_profile")
         # current power price (in cents per kWh)
         self.power_price = DEFAULT_POWER_PRICE
         self.previous_power = 0
