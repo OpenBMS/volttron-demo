@@ -47,6 +47,7 @@ class HouseCoordinator(Agent):
         # current power price (in cents per kWh)
         self.power_price = DEFAULT_POWER_PRICE
         self.previous_power = 0
+        self.disruption = False
         # Initialize Energy profile map, which indicates highest allowed operating 
         # states for each of the device, given a mode and price level
         self.init_energy_profile_map()
@@ -232,6 +233,7 @@ class HouseCoordinator(Agent):
         self.trigger_transitions(self.mode, self.power_price_level())
 
     def handle_disruption(self):
+        self.disruption = True
         # during power disruption, reduce load as much as possible
         self.trigger_transitions("economy", "high")
 
@@ -252,7 +254,7 @@ class HouseCoordinator(Agent):
         # extract specific property (such as voltage, power etc.) from the topic 
         cur_agent_context.update({topic.split("/")[-1]:  jsonapi.loads(message)})
         self.agents_context_map[agent_id].update(cur_agent_context)
-        HouseHTTPServer.set_buffer(self.agents_context_map)
+        HouseHTTPServer.set_buffer(self.dashboard_data())
 
         if(self.total_power() != self.previous_power):
           self.previous_power = self.total_power()
@@ -281,6 +283,17 @@ class HouseCoordinator(Agent):
             headers_mod.DATE: datetime.datetime.today().isoformat()
         }
         self.vip.pubsub.publish('pubsub', topic, headers, jsonapi.dumps(params['value']))
+
+    def dashboard_data(self):
+        return {
+            "total_power": {
+                "magnitude": self.total_power().to(_units("W")).magnitude,
+                "unit": "W"
+            },
+            "price": self.power_price,
+            "disruption": self.disruption,
+            "entities": self.agents_context_map
+        }
 
     def toggle_lamp(self, lamp_prefix, status):
         target_status = 'ON' if status == 'OFF' else 'OFF'
