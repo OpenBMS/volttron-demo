@@ -33,18 +33,22 @@ RUN . /home/volttron/volttron-source/env/bin/activate && \
   SOURCE=~/demo/entities/Test CONFIG=~/demo/entities/Test/testagent.config TAG=testagent COMMAND_ARGS="-t 0" ./scripts/core/make-agent-with-args.sh enable
 
 RUN . /home/volttron/volttron-source/env/bin/activate && \
-  SOURCE=~/demo/entities/Plug CONFIG=~/demo/entities/Plug/fan-plug.config TAG=fan-plug COMMAND_ARGS="-t 0" ./scripts/core/make-agent-with-args.sh enable
+  SOURCE=~/demo/entities/Plug CONFIG=~/demo/config/rpie/battery-lamp-plug.config TAG=battery-lamp-plug COMMAND_ARGS="-t 0" ./scripts/core/make-agent-with-args.sh enable
 RUN . /home/volttron/volttron-source/env/bin/activate && \
-  SOURCE=~/demo/entities/Plug CONFIG=~/demo/entities/Plug/lamp-plug.config TAG=lamp-plug COMMAND_ARGS="-t 0" ./scripts/core/make-agent-with-args.sh enable
+  SOURCE=~/demo/entities/Plug CONFIG=~/demo/config/rpie/battery-plug.config TAG=battery-plug COMMAND_ARGS="-t 0" ./scripts/core/make-agent-with-args.sh enable
+RUN . /home/volttron/volttron-source/env/bin/activate && \
+  SOURCE=~/demo/entities/Plug CONFIG=~/demo/config/rpie/fan-plug.config TAG=fan-plug COMMAND_ARGS="-t 0" ./scripts/core/make-agent-with-args.sh enable
+RUN . /home/volttron/volttron-source/env/bin/activate && \
+  SOURCE=~/demo/entities/Plug CONFIG=~/demo/config/rpie/lamp-plug.config TAG=lamp-plug COMMAND_ARGS="-t 0" ./scripts/core/make-agent-with-args.sh enable
 
 RUN . /home/volttron/volttron-source/env/bin/activate && \
-  SOURCE=~/demo/agents/HouseCoordinator CONFIG=~/demo/agents/HouseCoordinator/housecoordinator.config TAG=hc COMMAND_ARGS="-t 0" ./scripts/core/make-agent-with-args.sh enable
+  SOURCE=~/demo/agents/HouseCoordinator CONFIG=~/demo/config/rpie/housecoordinator.config TAG=hc COMMAND_ARGS="-t 0" ./scripts/core/make-agent-with-args.sh enable
 EXPOSE 5050
 RUN . /home/volttron/volttron-source/env/bin/activate && \
-  SOURCE=~/demo/entities/Battery CONFIG=~/demo/entities/Battery/battery-entity-1.config TAG=battery COMMAND_ARGS="-t 0" ./scripts/core/make-agent-with-args.sh enable
+  SOURCE=~/demo/entities/Battery CONFIG=~/demo/config/rpie/battery-arduino.config TAG=battery COMMAND_ARGS="-t 0" ./scripts/core/make-agent-with-args.sh enable
 EXPOSE 6000
 RUN . /home/volttron/volttron-source/env/bin/activate && \
-  SOURCE=~/demo/entities/Fan CONFIG=~/demo/entities/Fan/fan-entity-1.config TAG=fan COMMAND_ARGS="-t 0" ./scripts/core/make-agent-with-args.sh enable
+  SOURCE=~/demo/entities/Fan CONFIG=~/demo/config/rpie/fan-arduino.config TAG=fan COMMAND_ARGS="-t 0" ./scripts/core/make-agent-with-args.sh enable
 EXPOSE 6001
 
 WORKDIR /home/volttron
