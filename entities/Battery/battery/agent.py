@@ -10,11 +10,13 @@ from volttron.platform.vip.agent import Agent
 from volttron.platform.agent import utils
 from volttron.platform.messaging import headers as headers_mod
 from zmq.utils import jsonapi
+from pint import UnitRegistry
 
 import settings
 
 utils.setup_logging() 
 _log = logging.getLogger(__name__)
+_units = UnitRegistry()
 
 def battery_entity(config_path, **kwargs):
     config = utils.load_config(config_path)
@@ -34,7 +36,13 @@ def battery_entity(config_path, **kwargs):
             for component in components:
                 if '=' in component:
                     (key, value) = component.split('=')
-                    data.update({key: value})
+                    quantity = _units(value)
+                    data.update({
+                      key: {
+                        'magnitude': quantity.magnitude,
+                        'unit': 'V'
+                      }
+                    })
             self.status_push(data) 
 
         def status_push(self, data):
