@@ -1,3 +1,5 @@
+import os
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -21,7 +23,7 @@ class ExistingSeleniumSession(WebDriver):
 
 class BossClient(object):
     SESSION_ID_FILE = "/tmp/boss-session-id.tmp"
-    SELENIUM_URL = 'http://127.0.0.1:4444/wd/hub'
+    SELENIUM_URL = os.environ.get("SELENIUM_URL", 'http://127.0.0.1:4444/wd/hub')
 
     def login(self, email, password):
         self.driver.get("https://account.bosscontrols.com/login")
