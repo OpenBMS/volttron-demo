@@ -67,7 +67,7 @@ def fan_entity(config_path, **kwargs):
         def set_speed(self, speed):
             self.speed = speed
             if self.tcpServer.isClientConnected():
-                self.tcpServer.sendData("speed={value}".format(value=SPEED_MAPINGS[speed]))
+                self.tcpServer.sendData("speed={value}".format(value=SPEED_MAPPPINGS[speed]))
 
         @PubSub.subscribe('pubsub', settings.TYPE_PREFIX + '/' + AGENT_ID + '/operations/speed')
         def on_set_speed(self, peer, sender, bus, topic, headers, message):
