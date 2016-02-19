@@ -48,7 +48,7 @@ def plug_entity(config_path, **kwargs):
                 topic = prefix + '/' + item
                 self.vip.pubsub.publish('pubsub', topic, headers, jsonapi.dumps(data[item]))
 
-        @PubSub.subscribe('pubsub', settings.TYPE_PREFIX + '/' + AGENT_ID + '/operations/switch')
+        @PubSub.subscribe('pubsub', settings.TYPE_PREFIX + '/' + AGENT_ID + '/operations/status')
         def on_switch(self, peer, sender, bus, topic, headers, message):
             _log.debug('Plug got\nTopic: {topic}, {headers}, Message: {message}'.format(topic=topic, headers=headers, message=message))
             self.boss_client.switch(jsonapi.loads(message))
