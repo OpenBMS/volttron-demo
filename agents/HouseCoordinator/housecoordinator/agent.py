@@ -156,6 +156,10 @@ class HouseCoordinator(Agent):
         if (current_device_state  == 'off'):
             return False
 
+        # battery-arduino only makes measurements, provides no control
+        if (location == 'battery-arduino'):
+            return False
+
         # Take specific actions based on the device type and current state
         if ((location == 'pump-arduino') or (location == 'fan-arduino')):
             if (highest_allowed_device_state == 'off'):
