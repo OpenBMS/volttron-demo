@@ -19,12 +19,7 @@ _log = logging.getLogger(__name__)
 def fan_entity(config_path, **kwargs):
     config = utils.load_config(config_path)
     AGENT_ID = config.get("agent_id")
-
-    SPEED_MAPPINGS = {
-        'slow': 175,
-        'medium': 90,
-        'fast': 7
-    }
+    SPEED_MAPPINGS = config.get("speed_mappings")
 
     class FanEntity(Agent):
         def __init__(self, **kwargs):
