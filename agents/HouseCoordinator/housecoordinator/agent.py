@@ -152,11 +152,6 @@ class HouseCoordinator(Agent):
         if (current_device_state == highest_allowed_device_state):
             return False
 
-        # for battery always trigger a transition if current state is different from highest
-        # allowed state
-        if (location == 'battery'):
-            return True
-        
         # If device is off, no new actions are needed for that device
         if (current_device_state  == 'off'):
             return False
@@ -175,7 +170,7 @@ class HouseCoordinator(Agent):
             else:
                 return False
 
-        elif (location == 'lamp-plug'):
+        elif ('plug' in location):
             if (highest_allowed_device_state == 'off'):
                 if (current_device_state != 'off'):
                     return True
