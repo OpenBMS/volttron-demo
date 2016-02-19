@@ -290,6 +290,7 @@ class HouseCoordinator(Agent):
                 "magnitude": self.total_power().to(_units("W")).magnitude,
                 "unit": "W"
             },
+            "thresholds": self.power_price_thresholds,
             "price": self.power_price,
             "disruption": self.disruption,
             "entities": self.agents_context_map
