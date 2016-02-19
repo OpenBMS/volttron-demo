@@ -30,12 +30,7 @@ fi
 COMMAND="volttron-ctl"
 
 START="$COMMAND start --tag $TAG $COMMAND_ARGS"
-STOP="$COMMAND stop --tag $TAG $COMMAND_ARGS"
-REMOVE="$COMMAND remove --tag $TAG $COMMAND_ARGS"
 ENABLE="$COMMAND enable --tag $TAG $COMMAND_ARGS"
-DISABLE="$COMMAND disable --tag $TAG $COMMAND_ARGS"
-
-
 
 if [ ! -e "./applications" ]; then
     echo "Please execute from root of volttron repository."
@@ -55,16 +50,7 @@ if [ -z "$CONFIG" ]; then
   exit 0
 fi
 
-
-# Attempt to remove the agent by the tag.
 SCRIPTS_CORE="./scripts/core"
-#$SCRIPTS_CORE/remove_agent.sh $TAG
-
-#TODO: put this into a script on its own
-
-$STOP
-$DISABLE
-$REMOVE
 
 # For packaging of scripts us pack_install
 PACK="$SCRIPTS_CORE/pack_install.sh"
